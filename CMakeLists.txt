@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 project(monitor)
-
+SET(CURSES_NCURSES_LIBRARY "/usr/lib/x86_64-linux-gnu/libncurses.so")      
 set(CURSES_NEED_NCURSES TRUE)
 find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIRS})
