@@ -99,6 +99,7 @@ float LinuxParser::MemoryUtilization() {
 long LinuxParser::UpTime() { 
   string line;
   string value;
+  string other;
   std::ifstream stream(kProcDirectory + kUptimeFilename);
   if (stream.is_open())
   {
@@ -113,6 +114,7 @@ long LinuxParser::UpTime() {
   
   return 0; 
   }
+  
 
 // TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() { 
@@ -145,56 +147,24 @@ vector<string> LinuxParser::CpuUtilization() {
   vector<string> CPUData;
   string line,value;
   string key;
-//   std::ifstream stream(kProcDirectory + kStatFilename );
-//   if (stream.is_open())
-//   {
-//     while (std::getline(stream, line)) {
-//       std::istringstream linestream(line);
-//       linestream >> key;
-//       if (key == "cpu") {
-//         while(linestream>>value)
-//         {
-//           CPUData.push_back(value);
-//         }
-//       }
-//   }
-//   return CPUData;
-//  }
-  string cpu_user;
-  string cpu_nice;
-  string cpu_system;
-  string cpu_idle;
-  string cpu_iowait;
-  string cpu_irq;
-  string cpu_softirq;
-  string cpu_steal;
-  string cpu_guest;
-  string cpu_guest_nice;
-
-
-  std::ifstream filestream(kProcDirectory+ kStatFilename);
-  if (filestream.is_open()) {
-    std::getline(filestream, line);
+  std::ifstream stream(kProcDirectory + kStatFilename );
+  if (stream.is_open())
+  {
+    while (std::getline(stream, line)) {
       std::istringstream linestream(line);
-      linestream >> key >> cpu_user >> cpu_nice >> cpu_system >> cpu_idle >> cpu_iowait >> cpu_irq >> cpu_softirq 
-                                                                          >> cpu_steal >> cpu_guest >> cpu_guest_nice;
-      
-        if (key == "cpu") 
+      linestream >> key;
+      if (key == "cpu") {
+        while(linestream>>value)
         {
-          CPUData.push_back(cpu_guest_nice);
-          CPUData.push_back(cpu_guest);
-          CPUData.push_back(cpu_steal);
-          CPUData.push_back(cpu_softirq);
-          CPUData.push_back(cpu_irq);
-          CPUData.push_back(cpu_iowait);
-          CPUData.push_back(cpu_idle);
-          CPUData.push_back(cpu_system);
-          CPUData.push_back(cpu_nice);
-          CPUData.push_back(cpu_user);
+          CPUData.push_back(value);
         }
+      }
   }
-  return CPUData  ;
+ }
+   return CPUData;
+
 }
+ 
 
 // TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() {
