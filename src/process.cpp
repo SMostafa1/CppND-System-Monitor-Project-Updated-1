@@ -23,9 +23,72 @@ Process::Process(int i) {
 int Process::Pid() { return pid_; }
 
 // TODO: Return this process's CPU utilization
-float Process::CpuUtilization() {
+float Process::CpuUtilization() const{
     //total-idle / total
-    return ((LinuxParser::Jiffies()-LinuxParser::IdleJiffies())/LinuxParser::Jiffies());
+    // return ((LinuxParser::Jiffies()-LinuxParser::IdleJiffies())/LinuxParser::Jiffies());
+     string line;
+    string key;
+    string value;
+
+    long utime = 0;
+    long stime = 0;
+    long cutime = 0;
+    long cstime = 0;
+    long starttime = 0;
+    long upTime;
+
+    float total_time = 0;
+    double seconds = 0;
+    float cpu_usage=0;
+    std::ifstream filestream(LinuxParser::kProcDirectory+ to_string(pid_)+LinuxParser::kStatFilename);
+    if (filestream.is_open()) {
+        while (std::getline(filestream, line)) 
+        {
+            std::replace(line.begin(), line.end(), ':', ' ');
+            std::istringstream linestream(line);
+            int index = 0;
+            while (linestream  >> value) 
+            {
+                if(index == 13)
+                {
+                    utime = atol(value.c_str());
+                    index ++ ;
+                }
+                else if(index == 14)
+                {
+                    stime = atol(value.c_str());;
+                    index ++ ;
+                }
+                else if(index == 15)
+                {
+                    cutime = atol(value.c_str());
+                    index ++ ;
+                }
+                else if(index == 16)
+                {
+                    cstime = atol(value.c_str());
+                    index ++ ;
+                }
+                else if(index == 21)
+                {
+                    starttime = atol(value.c_str());
+                    index ++ ;
+                }
+                else
+                {
+                    index ++ ;
+                }
+                
+            }
+        }
+    }
+
+    upTime = LinuxParser::UpTime() ;
+    total_time = utime + stime +  cutime + cstime;
+    seconds = upTime - (starttime/sysconf(_SC_CLK_TCK)) ;
+
+    cpu_usage = (total_time/sysconf(_SC_CLK_TCK)/seconds);
+    return cpu_usage;
  }
 
 // TODO: Return the command that generated this process
@@ -42,4 +105,7 @@ long int Process::UpTime() { return UpTime_; }
 
 // TODO: Overload the "less than" comparison operator for Process objects
 // REMOVE: [[maybe_unused]] once you define the function
-bool Process::operator<(Process const& a[[maybe_unused]]) const { return true; }
+bool Process::operator<(Process const& a) const {
+     return (CpuUtilization() < a.CpuUtilization());
+    
+ }
