@@ -234,14 +234,14 @@ string LinuxParser::Uid(int pid) {
   string line;
   string key;
   string value;
-  std::ifstream stream(kProcDirectory + to_string(pid) + kStatusFilename);
+  std::ifstream stream(kProcDirectory+ to_string(pid)+kStatusFilename);
   if (stream.is_open()) {
     while (std::getline(stream, line)) {
       std::replace(line.begin(), line.end(), ':', ' ');
       std::istringstream linestream(line);
       while (linestream >> key >> value) {
-        if (key == "Uid:") {
-          break;
+        if (key == "Uid") {
+          return value;
         }
       }
     }
@@ -263,7 +263,7 @@ string LinuxParser::User(int pid) {
       std::istringstream linestream(line);
       linestream >> user >> skip >> id;
       if (UID == id) {
-        break;
+        return user;
       }
     }
   }
